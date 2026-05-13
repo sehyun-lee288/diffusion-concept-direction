@@ -1,0 +1,12 @@
+diffusers==0.37.1
+transformers
+datasets
+accelerate
+torch
+torchvision
+numpy
+pillow
+matplotlib
+pyyaml
+pytest
+ruff

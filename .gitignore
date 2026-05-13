@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.pytest_cache/
+.ruff_cache/
+
+# Data artifacts (regeneratable)
+data/smoke_sample.png
+data/anchors/
+data/sign_grid.npy
+data/grid_meta.yaml
+figures/
+
+# Editor
+.vscode/
+.idea/
+*.swp
