@@ -193,6 +193,35 @@ candidate fixes:
 Diagnostics file: `figures/exp1_radial_analysis.png`.
 Script: `scripts/06_analyze_radial.py`.
 
+## Phase 6 — Single-location (per-neuron) boundary
+
+**Motivation**. The Phase 4/5 reduction `sign(spatial_mean(h_c))` collapses
+64 spatial neurons per channel into one "averaged" line, which is *not*
+the boundary of any actual neuron in the U-Net. To draw RDR-style real
+neuron boundaries we use `sign(h_c[i*, j*])` at a fixed pixel — each line
+on the plane is then the genuine zero-crossing of one mid_block neuron.
+
+**Deliverable**
+- `diffusion_boundary.plane.channel_sign_at_pixel` + unit test
+- `scripts/07_single_location.py` — runs at center pixel (4, 4),
+  produces `figures/exp2_single_location_pix4_4.png` (two panels:
+  region map + all active neuron lines)
+
+**Result** (pixel `(4, 4)`).
+- 475 / 512 channels active in the window
+- 2438 regions / 2500 cells (essentially each cell is its own region —
+  475-dim sign vector saturates the 50×50 grid resolution)
+- **Right panel — all 475 boundary lines drawn directly — show NO radial
+  pattern**. Lines are distributed approximately uniformly in direction
+  and offset. This decisively confirms the Phase 5.5 conclusion: the
+  radial appearance in `exp1_boundary.png` is a *selection artifact* of
+  top-K-balanced, not a property of the bottleneck.
+
+**Implication**. Real per-neuron boundaries are *not* concentrated near
+any common point. A useful next step is to find a region-merging or
+channel-selection scheme that respects this true geometry but still
+yields a small number of *meaningful* regions for visualization.
+
 ## Findings / Follow-ups (for Phase 6+)
 
 1. ~~**Radial boundary pattern**~~ — explained above (Phase 5.5).

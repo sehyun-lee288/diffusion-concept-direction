@@ -73,6 +73,38 @@ def grid_points(
     return origin.unsqueeze(0) + A * u.unsqueeze(0) + B * v.unsqueeze(0)
 
 
+def channel_sign_at_pixel(
+    h_flat: torch.Tensor, *, channels: int, spatial: int, pixel_i: int, pixel_j: int
+) -> torch.Tensor:
+    """sign(h_c[pixel_i, pixel_j]) per channel — a *single-neuron* boundary.
+
+    Unlike `channel_sign_mean`, this does not average over spatial locations.
+    Each (c, pixel_i, pixel_j) corresponds to one actual neuron in the U-Net
+    mid_block, so its zero-crossing is the genuine decision boundary of that
+    neuron — closer to the RDR / SplineCam definition than a spatial average.
+
+    Args:
+        h_flat: (N, C·H·W) flat batch.
+        channels: number of channels C.
+        spatial: spatial side length (assumes H == W == spatial).
+        pixel_i, pixel_j: 0-based indices into the H×W grid.
+
+    Returns:
+        int8 tensor of shape (N, C) with values in {-1, 0, +1}.
+    """
+    if h_flat.dim() != 2:
+        raise ValueError(f"expected 2D (N, D) tensor, got shape {tuple(h_flat.shape)}")
+    expected_d = channels * spatial * spatial
+    if h_flat.shape[1] != expected_d:
+        raise ValueError(
+            f"flat dim {h_flat.shape[1]} != channels·spatial² = {expected_d}"
+        )
+    if not (0 <= pixel_i < spatial and 0 <= pixel_j < spatial):
+        raise ValueError(f"pixel ({pixel_i}, {pixel_j}) outside {spatial}×{spatial} grid")
+    h = h_flat.reshape(-1, channels, spatial, spatial)
+    return torch.sign(h[:, :, pixel_i, pixel_j]).to(torch.int8)
+
+
 def channel_sign_mean(
     h_flat: torch.Tensor, *, channels: int, spatial: int
 ) -> torch.Tensor:

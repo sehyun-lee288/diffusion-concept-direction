@@ -47,6 +47,21 @@ def test_grid_points_shape_and_corners():
     assert torch.allclose(pts[0], torch.tensor([0.0, -1.0, 0.0, 0.0]))
 
 
+def test_channel_sign_at_pixel_picks_one_location():
+    """sign at (i, j) reads exactly that pixel — no spatial averaging."""
+    from diffusion_boundary.plane import channel_sign_at_pixel
+    # (1, 2, 2, 2): channel 0 has +3 at (0,0), -1 elsewhere; channel 1 mirror.
+    h = torch.tensor([[
+        [[3.0, -1.0], [-1.0, -1.0]],   # at (0,0): +3 → +1; at (1,1): -1 → -1
+        [[-1.0, -1.0], [-1.0, 3.0]],   # at (0,0): -1 → -1; at (1,1): +3 → +1
+    ]])
+    h_flat = h.reshape(1, -1)
+    s_00 = channel_sign_at_pixel(h_flat, channels=2, spatial=2, pixel_i=0, pixel_j=0)
+    s_11 = channel_sign_at_pixel(h_flat, channels=2, spatial=2, pixel_i=1, pixel_j=1)
+    assert s_00.tolist() == [[1, -1]]
+    assert s_11.tolist() == [[-1, 1]]
+
+
 def test_channel_sign_mean_shape_and_values():
     """channel_sign_mean reshapes flat → (C,H,W), spatial-mean, then sign."""
     # Hand-crafted (1, 2, 2, 2): channel 0 has mean +1, channel 1 mean -1.5.
