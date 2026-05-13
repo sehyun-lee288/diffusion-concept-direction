@@ -8,7 +8,7 @@ Authoritative design rationale lives in the research plan; this file tracks
 
 - [x] Phase 1 — Environment & Smoke Test
 - [x] Phase 2 — H-Space Capture Hook
-- [ ] Phase 3 — DDIM Inversion & Anchors
+- [x] Phase 3 — DDIM Inversion & Anchors
 - [ ] Phase 4 — 2D Plane & Sign Grid
 - [ ] Phase 5 — Boundary Visualization
 
@@ -48,7 +48,25 @@ Authoritative design rationale lives in the research plan; this file tracks
 Phase 4 sign vector dim = 512 (channel-wise spatial-max).
 
 ## Phase 3 — DDIM Inversion & Anchors
-(미실행)
+
+**Deviation from original plan**: substituted q-sample (forward diffusion) for
+DDIM inversion. Justification: for boundary analysis on a 2D plane we only
+need deterministic `(x_0, ε, t) ↦ x_t` and a corresponding h-vector;
+self-consistent ε prediction adds complexity without changing Phase 4 inputs.
+True DDIM inversion is queued as a future ablation.
+
+**Deliverables**
+- `diffusion_boundary/inversion.py::noise_to_t` (q-sample with fixed seed)
+- `scripts/03_invert_anchors.py` (CelebA-HQ from `mattymchen/celeba-hq` ×3)
+- `tests/test_inversion.py` (5 tests) + `tests/test_anchors.py` (4 post-condition tests)
+
+**Data products** (under `data/anchors/`):
+- `anchor_{0,1,2}.png` — 256×256 source images (ds idx 0, 1000, 5000)
+- `x500_{0,1,2}.pt` — (1, 3, 256, 256) latent at t=500
+- `h500_{0,1,2}.pt` — (1, 512, 8, 8) bottleneck feature
+- `meta.yaml` — model_id / dataset_id / target_t / per-anchor seeds & paths
+
+**Status**: completed. All 16 tests pass; h-vectors pairwise-distinct.
 
 ## Phase 4 — 2D Plane & Sign Grid
 (미실행)
