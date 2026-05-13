@@ -11,7 +11,7 @@ data/smoke_sample.png
 data/anchors/
 data/sign_grid.npy
 data/grid_meta.yaml
-figures/
+# figures/ tracked so the toy experiment result is committed alongside code
 
 # Editor
 .vscode/

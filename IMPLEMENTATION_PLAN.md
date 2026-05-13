@@ -10,7 +10,7 @@ Authoritative design rationale lives in the research plan; this file tracks
 - [x] Phase 2 — H-Space Capture Hook
 - [x] Phase 3 — DDIM Inversion & Anchors
 - [x] Phase 4 — 2D Plane & Sign Grid
-- [ ] Phase 5 — Boundary Visualization
+- [x] Phase 5 — Boundary Visualization
 
 ## Confirmed Design Decisions
 
@@ -101,4 +101,46 @@ enough to make Phase 5 region clustering meaningful.
 **Status**: completed. All 21 tests pass.
 
 ## Phase 5 — Boundary Visualization
-(미실행)
+
+**Deliverables**
+- `diffusion_boundary/viz.py`: `find_boundaries`, `region_ids`,
+  `active_channel_mask`, `top_k_balanced_channels`, `plot_boundary_panel`
+- `scripts/05_visualize.py` — loads sign grid, picks top-K balanced
+  channels, decodes 9 sparse grid points via `decode_from_h` (mid_block
+  hook-injection + DDIM denoise from t=500 to t=0), produces the figure
+- `tests/test_viz.py` (6 tests)
+
+**Key parameters**
+- `TOP_K_CHANNELS = 20` — full 512-channel sign pattern is near-unique per
+  cell (2446 / 2500 regions); selecting the 20 most-balanced channels
+  brings the count to 134 regions and makes structure visible
+- `DECODE_STEP_SIZE = 50` — DDIM coarse stride 500 → 450 → … → 0
+- Anchor 0's x_500 used as fixed encoder input across all 9 decodings
+
+**Result** (`figures/exp1_boundary.png`)
+- 134 distinct regions in the (α, β) ∈ [-0.5, 1.5]² window
+- Anchors `h1`, `h2`, `h3` are visible at (0, 0), (1, 0), (a, 1)
+- Boundary lines appear to converge in the central region — empirically
+  observed radial pattern worth investigating in future ablations
+- 9 decoded thumbnails show the bottleneck-only variation: with fixed
+  encoder skip connections (from anchor 0), variations are subtle
+  (similar identity, varying expression/highlights) — suggests h-space
+  in DDPM CelebA-HQ carries less independent semantic signal than in
+  larger latent-diffusion models. A claim worth quantifying.
+
+**Status**: completed. All 27 tests pass; figure renders.
+
+## Findings / Follow-ups (for Phase 6+)
+
+1. **Radial boundary pattern**: lines from many channels appear to pass
+   through a common point near the triangle centroid. Math says they
+   *shouldn't* in general — investigate whether mid_block features are
+   dominated by a low-rank structure that forces this.
+2. **Subtle thumbnail variation**: decoding from h-only (with fixed
+   skips) yields small attribute change. Test (a) injection at multiple
+   t values, (b) sweeping x_500 along with h.
+3. **DDIM inversion**: queued ablation to replace q-sample.
+4. **K sensitivity**: how does the region count and the perceived
+   "structure" change as K varies in {5, 10, 20, 50}?
+5. **Per-channel line plot**: draw the K boundary lines explicitly
+   (not just region coloring) — closer to RDR Figure 1 style.
