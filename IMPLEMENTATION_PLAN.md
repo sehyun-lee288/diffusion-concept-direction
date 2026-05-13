@@ -130,12 +130,72 @@ enough to make Phase 5 region clustering meaningful.
 
 **Status**: completed. All 27 tests pass; figure renders.
 
+## Phase 5.5 — Radial Pattern Analysis (resolved)
+
+**Question**: Why do the top-20 boundary lines visually converge near
+(α, β) ≈ (0.5, 0.5)?
+
+**Theory**. Each channel c's boundary on the plane is the line
+`A_c·α + B_c·β + C_c = 0` where `(A_c, B_c, C_c) = (mean_c(h2−h1),
+mean_c(v), mean_c(h1))`. Stacking these into `M ∈ ℝ^{512×3}`:
+
+- `rank(M) = 1` ⇒ all lines coincide (degenerate).
+- `rank(M) = 2` ⇒ all lines pass through the unique projective null vector
+  of M (a true *pencil* of lines).
+- `rank(M) = 3` ⇒ no common point.
+
+**Measurement** (`scripts/06_analyze_radial.py`).
+SVD of `M`: singular values **[11.17, 8.24, 3.85]**, energy share
+**60.2 / 32.7 / 7.1 %**. So `M` has effective rank ≈ 2 (s3 carries only 7%
+of energy) — but is *not* exactly rank-2; the third direction is small but
+nonzero.
+
+Naively this would predict a "near-pencil" with a single common point.
+But the SVD-derived best-fit common point is (−0.785, −0.323), while the
+empirical pairwise-intersection cluster sits at (0.495, 0.500) — they
+disagree, so the SVD/null-space story alone is not the whole explanation.
+
+**K-sweep** reveals the dominant cause:
+
+| K   | n_pairs | median (α, β)        | MAD              |
+|-----|---------|----------------------|------------------|
+| 10  | 45      | (+0.500, +0.502)     | (0.007, 0.005)   |
+| 20  | 190     | (+0.495, +0.500)     | (0.012, 0.013)   |
+| 50  | 1 225   | (+0.504, +0.498)     | (0.036, 0.035)   |
+| 100 | 4 950   | (+0.488, +0.478)     | (0.073, 0.061)   |
+| 250 | 31 125  | (+0.534, +0.433)     | (0.184, 0.203)   |
+| 512 | 130 816 | (+0.647, +0.274)     | (0.456, 0.474)   |
+
+The cluster tightness drops monotonically as K grows. The full-channel
+median (0.647, 0.274) doesn't match the triangle centroid (0.498, 0.333)
+either, so the model's intrinsic structure isn't "lines through the
+centroid."
+
+**Conclusion**. The visual radial pattern at K=20 is *mostly a selection
+artifact*: top-K-balanced picks channels whose ±1 split across the grid
+window is closest to 50/50, which is equivalent to picking channels
+whose boundary line passes near the center of the grid window. With the
+grid α, β ∈ [−0.5, 1.5] the center is (0.5, 0.5), and that is where the
+chosen lines converge. The underlying model has effective rank-2 features
+(60.2 + 32.7 = 92.9% energy in first two directions), which makes the
+artifact especially clean — but it is still an artifact, not a discovery
+about DDPM CelebA-HQ.
+
+**Implication for follow-ups**. If we want to draw boundaries that
+reflect intrinsic model structure rather than the grid window, two
+candidate fixes:
+1. Replace top-K-balanced with **top-K-variance** of `(A_c, B_c)`
+   (largest contribution to the boundary direction, not to the in-window
+   split).
+2. Center the grid on the SVD null point or the anchor triangle centroid,
+   then use **all active** channels.
+
+Diagnostics file: `figures/exp1_radial_analysis.png`.
+Script: `scripts/06_analyze_radial.py`.
+
 ## Findings / Follow-ups (for Phase 6+)
 
-1. **Radial boundary pattern**: lines from many channels appear to pass
-   through a common point near the triangle centroid. Math says they
-   *shouldn't* in general — investigate whether mid_block features are
-   dominated by a low-rank structure that forces this.
+1. ~~**Radial boundary pattern**~~ — explained above (Phase 5.5).
 2. **Subtle thumbnail variation**: decoding from h-only (with fixed
    skips) yields small attribute change. Test (a) injection at multiple
    t values, (b) sweeping x_500 along with h.
