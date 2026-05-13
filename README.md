@@ -1,9 +1,11 @@
 # diffusion-concept-direction
 
 Decision boundary visualization in the **h-space** of a DDPM, applied to
-CelebA-HQ. See [`research_plan.md`](research_plan.md) for the research goal
-and [`IMPLEMENTATION_PLAN.md`](IMPLEMENTATION_PLAN.md) for the phase-by-phase
-execution plan.
+CelebA-HQ.
+
+- [`research_plan.md`](research_plan.md) — research goal, RQs, related work
+- [`IMPLEMENTATION_PLAN.md`](IMPLEMENTATION_PLAN.md) — phase status & deliverables
+- [`FINDINGS.md`](FINDINGS.md) — analysis results & open questions
 
 ## Setup
 
