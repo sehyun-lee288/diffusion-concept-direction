@@ -95,6 +95,32 @@ def region_ids(sign_grid: np.ndarray) -> np.ndarray:
     return ids
 
 
+def overlay_thumbnails(
+    ax,
+    thumbnails: Sequence[tuple[float, float, np.ndarray]],
+    *,
+    zoom: float = 0.15,
+    frame: bool = True,
+) -> None:
+    """Drop each thumbnail onto `ax` at its (α, β) coordinate.
+
+    `thumbnails` is a sequence of (α, β, image_uint8). The plot's data
+    transform places the image at the correct plane position; `zoom`
+    controls thumbnail size in pixels (≈ image_height_in_pixels × zoom).
+    """
+    # Local import to keep matplotlib optional for unit tests.
+    from matplotlib.offsetbox import AnnotationBbox, OffsetImage
+
+    for a, b, img in thumbnails:
+        ob = OffsetImage(img, zoom=zoom)
+        ab = AnnotationBbox(
+            ob, (a, b),
+            frameon=frame, pad=0.05,
+            bboxprops={"edgecolor": "white", "linewidth": 0.5} if frame else None,
+        )
+        ax.add_artist(ab)
+
+
 def plot_boundary_panel(
     ids: np.ndarray,
     bmask: np.ndarray,

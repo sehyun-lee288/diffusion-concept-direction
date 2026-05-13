@@ -15,6 +15,8 @@ Phase-by-phase execution of [research_plan.md](research_plan.md) §5.
 - [x] Phase 5.5 — Radial pattern diagnostic
 - [x] Phase 6 — Single spatial location boundary
 - [x] Phase 7 — Single channel, varying spatial
+- [x] Phase 8 — Plane-grid sampled-image overlay
+- [x] Phase 9 — Per-channel angle statistics
 
 ## Confirmed Design Decisions
 
@@ -112,6 +114,39 @@ Conclusion in FINDINGS.md §4.
 386 / 107 / 131 / 338.
 
 Conclusion in FINDINGS.md §5.
+
+## Phase 8 — Plane-grid sampled-image overlay (utility + demo)
+
+Going forward, every plane plot should be able to attach a decoded
+thumbnail grid so visible attribute changes can be cross-checked
+against sign-pattern boundaries.
+
+**Deliverables**
+- `diffusion_boundary/decoding.py` (`decode_from_h`, `decode_plane_grid`,
+  `to_uint8_image`) — refactored from script 05
+- `diffusion_boundary/viz.py::overlay_thumbnails`
+  (matplotlib `AnnotationBbox` placement at plane coordinates)
+- `scripts/09_plane_thumbnails.py` (5×5 demo)
+- `tests/test_viz.py::test_overlay_thumbnails_adds_artists`
+
+**Figure**: `figures/exp4_plane_thumbnails.png` — 2 panels: region map +
+5×5 thumbnails overlaid (left); thumbnails alone (right).
+
+## Phase 9 — Per-channel angle statistics
+
+Quantify the Phase 7 qualitative observation ("some channels show
+clustered line slopes") with circular statistics.
+
+**Deliverables**
+- `scripts/10_channel_angle_stats.py` — for each channel computes the
+  doubled-angle mean direction μ_c and concentration R_c over its 64
+  per-pixel line normals
+
+**Figure**: `figures/exp5_channel_angle_stats.png` — R histogram +
+rose plots for top-4 and bottom-4 channels.
+
+Conclusion in FINDINGS.md §5 (now quantified): all channels have
+R ≤ 0.43, median R ≈ 0.14 — directional bias exists but is weak.
 
 ## Next phases
 

@@ -121,26 +121,64 @@ script: `scripts/06_analyze_radial.py`.
 
 ---
 
-## 5. 채널 내부에는 방향 편향이 존재한다
+## 5. 채널 내부에는 방향 편향이 **약하지만** 존재한다 (정량)
 
 채널 `c` 고정, 64개 spatial location `(i, j)`의 line을 plane에 그리면 어떤가?
 `scripts/08_single_channel.py` 가 top-4 most-diverse channel (386, 107, 131,
-338) 비교를 생성.
+338)을 보여주고, `scripts/10_channel_angle_stats.py` 가 모든 512 채널의
+정량 분포를 제공.
 
-`figures/exp3_single_channel.png` 하단 panel 관찰:
+### 5.1 정의
 
-- **방사형 없음** (Phase 4와 일관)
-- 채널 107·131에서 **line 기울기가 한쪽으로 클러스터링**
-- 채널 386은 비교적 균일
+각 line의 normal vector `(A_c[i,j], B_c[i,j])`의 angle을 `θ ∈ [0, π)`로
+보면 (line direction은 ±방향 동일) circular stats는 doubled-angle
+representation `z = exp(2iθ)` 위에서 정의:
 
-원인: 같은 channel = 같은 conv filter. 인접 `(i, j)`는 같은 weight로 인접
-patch를 보므로 계수 `(A_c[i,j], B_c[i,j], C_c[i,j])`가 spatially smooth →
-인접 line은 비슷한 방향으로 기울어짐. **single channel은 low-rank spatial-
-direction preference를 인코딩**한다.
+- **평균 방향**: μ_c = arg(⟨z⟩) / 2
+- **집중도**: R_c = |⟨z⟩| ∈ [0, 1]
+  - R → 1: 64개 line 모두 평행
+  - R → 0: 방향 균등 분포
+
+### 5.2 측정 결과 (`figures/exp5_channel_angle_stats.png`)
+
+```
+R distribution across 512 channels:
+  min = 0.006,  median = 0.141,  max = 0.425
+```
+
+**채널 어느 것도 강한 directional bias를 가지지 않음 (R ≤ 0.43)**. 즉
+Phase 7의 "channel 107/131 line이 비슷한 기울기" 관찰은 정량적으로는
+약한 효과.
+
+| 분류 | channel | R | μ (deg) |
+|---|---:|---:|---:|
+| 가장 집중 | 357 | 0.425 | 3.0 |
+| ↓        | 111 | 0.425 | 15.1 |
+| ↓        | 362 | 0.371 | 8.2 |
+| ↓        | 291 | 0.355 | 4.8 |
+| 가장 분산 | 486 | 0.006 | 112.9 |
+| ↑        | 224 | 0.006 | 47.4 |
+| ↑        | 313 | 0.010 | 57.5 |
+| ↑        | 470 | 0.015 | 118.8 |
+
+### 5.3 관찰
+
+- **Top-4의 μ가 0–15°에 몰림** (horizontal normal → vertical line).
+  그 정도로 약한 효과지만 일관된 방향성이 존재.
+- **Bottom-4는 거의 random**. Rose plot이 균등 ring 형태.
+- 원인: 같은 channel = 같은 conv filter → 인접 `(i, j)` 계수가 smooth →
+  인접 line이 비슷하게 tilt. 하지만 64개 모두 통계적으로 정렬되기엔
+  부족.
+
+### 5.4 함의
 
 요약:
 - **채널 간**: 방향 분포 ~uniform (Section 4)
-- **채널 내**: 채널 특유의 방향성 (Section 5)
+- **채널 내**: 평균 R ≈ 0.14, 최대 0.43 — 약한 directional bias
+
+따라서 "channel = semantic concept direction" 가설은 약하게만 지지됨.
+강한 attribute control을 위해 채널을 선택하더라도, 그 채널의 64 line이
+한 방향으로 align되어 있지는 않으므로 단일 axis 해석은 신중해야 함.
 
 ---
 

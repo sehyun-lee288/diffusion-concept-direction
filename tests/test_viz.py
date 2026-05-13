@@ -6,9 +6,27 @@ import numpy as np
 from diffusion_boundary.viz import (
     active_channel_mask,
     find_boundaries,
+    overlay_thumbnails,
     region_ids,
     top_k_balanced_channels,
 )
+
+
+def test_overlay_thumbnails_adds_artists():
+    """overlay_thumbnails should add one AnnotationBbox artist per thumbnail."""
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    fig, ax = plt.subplots()
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+    thumbs = [(0.2, 0.3, np.zeros((8, 8, 3), dtype=np.uint8)),
+              (0.7, 0.8, np.ones((8, 8, 3), dtype=np.uint8) * 255)]
+    before = len(ax.artists)
+    overlay_thumbnails(ax, thumbs, zoom=0.5)
+    after = len(ax.artists)
+    plt.close(fig)
+    assert after - before == 2
 
 
 def test_active_channel_mask():
