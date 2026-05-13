@@ -73,6 +73,32 @@ def grid_points(
     return origin.unsqueeze(0) + A * u.unsqueeze(0) + B * v.unsqueeze(0)
 
 
+def pixel_signs_for_channel(
+    h_flat: torch.Tensor, *, channel: int, channels: int, spatial: int
+) -> torch.Tensor:
+    """sign(h_c[i, j]) for a fixed channel c, varying spatial (i, j).
+
+    Each of the spatial² resulting bits is the genuine zero-crossing of one
+    actual mid_block neuron — same conv filter (channel) applied at a
+    different spatial position. Useful for asking "how does this feature
+    vary spatially across the plane?"
+
+    Returns:
+        int8 tensor of shape (N, spatial²) flattened in row-major order.
+    """
+    if h_flat.dim() != 2:
+        raise ValueError(f"expected 2D (N, D) tensor, got shape {tuple(h_flat.shape)}")
+    expected_d = channels * spatial * spatial
+    if h_flat.shape[1] != expected_d:
+        raise ValueError(
+            f"flat dim {h_flat.shape[1]} != channels·spatial² = {expected_d}"
+        )
+    if not (0 <= channel < channels):
+        raise ValueError(f"channel {channel} out of range [0, {channels})")
+    h = h_flat.reshape(-1, channels, spatial, spatial)
+    return torch.sign(h[:, channel, :, :].reshape(h.shape[0], -1)).to(torch.int8)
+
+
 def channel_sign_at_pixel(
     h_flat: torch.Tensor, *, channels: int, spatial: int, pixel_i: int, pixel_j: int
 ) -> torch.Tensor:

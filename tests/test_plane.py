@@ -47,6 +47,20 @@ def test_grid_points_shape_and_corners():
     assert torch.allclose(pts[0], torch.tensor([0.0, -1.0, 0.0, 0.0]))
 
 
+def test_pixel_signs_for_channel_returns_per_pixel_signs():
+    """For a fixed channel, the result is a per-pixel sign vector."""
+    from diffusion_boundary.plane import pixel_signs_for_channel
+    # (1, 2, 2, 2): channel 0 = [[+1, -2], [-3, +4]], channel 1 doesn't matter here.
+    h = torch.tensor([[
+        [[1.0, -2.0], [-3.0, 4.0]],
+        [[0.0, 0.0], [0.0, 0.0]],
+    ]])
+    h_flat = h.reshape(1, -1)
+    s = pixel_signs_for_channel(h_flat, channel=0, channels=2, spatial=2)
+    # row-major flatten of [[+1, -2], [-3, +4]] → [+1, -1, -1, +1]
+    assert s.tolist() == [[1, -1, -1, 1]]
+
+
 def test_channel_sign_at_pixel_picks_one_location():
     """sign at (i, j) reads exactly that pixel — no spatial averaging."""
     from diffusion_boundary.plane import channel_sign_at_pixel

@@ -222,6 +222,32 @@ any common point. A useful next step is to find a region-merging or
 channel-selection scheme that respects this true geometry but still
 yields a small number of *meaningful* regions for visualization.
 
+## Phase 7 — Single channel, varying spatial position
+
+**Setup**. Fix one channel `c`, draw 64 boundary lines — one per
+spatial location `(i, j)`. Same conv filter, different spatial reading.
+
+**Deliverable**
+- `diffusion_boundary.plane.pixel_signs_for_channel` + unit test
+- `scripts/08_single_channel.py` — auto-selects the top-4 channels by
+  "pattern diversity" (largest number of distinct per-pixel sign vectors
+  across the 50×50 grid), produces a 2×4 panel
+- `figures/exp3_single_channel.png`
+
+**Result**. Selected channels: 386, 107, 131, 338 with 751, 723, 708,
+705 unique 64-bit patterns respectively. Per channel ~62–64 / 64 pixels
+are active in the window. Region counts: 868, 826, 810, 814 (still
+saturating but ~3× sparser than the all-channel 2438).
+
+**Geometric observation**. Per-channel line bundles are *not* radial,
+matching Phase 6. They *are* somewhat correlated in direction within a
+channel (visible in channel 107 / 131 in particular) — neighboring
+spatial pixels share the same conv filter so their coefficients
+(A, B, C) at adjacent (i, j) are smooth and the lines tilt similarly.
+This is a sign that a single conv channel encodes a low-rank
+*spatial-direction* preference, even though across channels the
+directions are uniform.
+
 ## Findings / Follow-ups (for Phase 6+)
 
 1. ~~**Radial boundary pattern**~~ — explained above (Phase 5.5).
