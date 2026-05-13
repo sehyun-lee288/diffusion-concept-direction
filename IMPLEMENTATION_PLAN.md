@@ -7,7 +7,7 @@ Authoritative design rationale lives in the research plan; this file tracks
 ## Phase Status
 
 - [x] Phase 1 — Environment & Smoke Test
-- [ ] Phase 2 — H-Space Capture Hook
+- [x] Phase 2 — H-Space Capture Hook
 - [ ] Phase 3 — DDIM Inversion & Anchors
 - [ ] Phase 4 — 2D Plane & Sign Grid
 - [ ] Phase 5 — Boundary Visualization
@@ -36,7 +36,16 @@ Authoritative design rationale lives in the research plan; this file tracks
 **Results**: see git commit message and `data/smoke_sample.png`.
 
 ## Phase 2 — H-Space Capture Hook
-(미실행)
+
+**Deliverables**
+- `diffusion_boundary/hooks.py::MidBlockCapture` — context manager hook
+- `scripts/02_capture_h.py` — real-model demo
+- `tests/test_hooks.py` (5 tests)
+
+**Status**: completed.
+
+**Result**: `h.shape = (1, 512, 8, 8)` for DDPM CelebA-HQ at t=500.
+Phase 4 sign vector dim = 512 (channel-wise spatial-max).
 
 ## Phase 3 — DDIM Inversion & Anchors
 (미실행)
