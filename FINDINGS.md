@@ -371,6 +371,81 @@ boundary 다시 그리고, region이 attribute combination에 대응하는지 �
 
 ---
 
+## 6e. Attribute-plane boundary + per-channel loading (Phase 14 + 15)
+
+attribute-paired plane이 의미 있는 visualization을 만들었으니, 이제
+원래 Phase 4 식 sign-pattern boundary 분석을 attribute axis 위에서
+다시 시도. 동시에 per-channel attribute loading 분석으로 채널 분화
+구조를 정량.
+
+### 6e.1 Sign boundary on attribute plane (Phase 14)
+
+t=450 (cache에서 t=500과 가장 가까운 키) 의 직접 계산:
+
+`h(α, β) = h_anchor0 + α · Δh_smile_orth + β · Δh_gender`
+→ 채널별 `sign(spatial_mean(h_c))`
+
+`figures/exp10_attribute_boundary.png`:
+- 396 active channel → 2432 region (full saturation; grid 해상도 한계)
+- top-K=20 → 159 region, **여전히 radial 패턴** (이번엔 (0, 0) 중심)
+- top-K-balanced criterion이 attribute axis에서도 in-window 중앙
+  passing line을 선호 → Phase 5.5의 artifact가 재현됨
+
+→ **단일 step sign pattern은 multi-step trajectory editing의 attribute
+effect를 직접 인코딩하지 못함**. 디코딩된 이미지(exp9)는 깔끔한
+attribute region을 보이지만 t=450의 sign pattern은 random radial. 정보가
+single-step h에 있지만 그것이 decoded image의 attribute로 변환되는
+경로는 trajectory level에서 일어남.
+
+이건 본 연구의 큰 메시지: **diffusion model 'h-space boundary'는
+classifier/GAN의 decision boundary와 의미가 다름**. h-space에 정보는
+있지만 (probe d′=4.23), boundary geometry는 attribute structure를
+fully 표현하지 못함.
+
+### 6e.2 Per-channel attribute loading (Phase 15)
+
+각 채널 c의 attribute loading: `A_c = mean_spatial(Δh_smile_orth_c)`,
+`B_c = mean_spatial(Δh_gender_c)`.
+
+`figures/exp11_channel_loading.png` 핵심 수치:
+
+| 지표 | 값 | 해석 |
+|---|---:|---|
+| corr(A_orig, B) | **+0.559** | original smile direction이 gender와 강한 양의 상관 — entanglement |
+| corr(A_orth, B) | **+0.134** | orthogonalization 후 상관 거의 사라짐 ✓ |
+| median \|A_orth\| | 0.083 | 약하지만 살아있는 분포 |
+| median \|B\| | 0.100 | |
+
+채널 분류 (`purity = max(|A|, |B|) / hypot(A, B) > 0.85`):
+
+| 분류 | 수 | top 채널 예 |
+|---:|---|---|
+| **smile-pure** | 110 | 583, 118, 119, 80 |
+| **gender-pure** | 173 | 316, 412, 156, 79 |
+| **joint** | 101 | 462, 405, 412, 81 |
+| weak | 128 | — |
+
+→ **512개 mid_block 채널이 attribute별로 분화 인코딩**. Gender 채널이
+가장 많고 (173/512 ≈ 34%), smile은 그 절반 정도. 약 20%는 두 attribute
+모두 인코딩하는 multi-attribute neuron.
+
+채널 80은 smile-top과 gender-top 양쪽에 등장 — 진정한 multi-attribute
+encoder의 예.
+
+### 함의
+
+1. **Boundary geometry 한계**: top-K-balanced + single-step sign 방식은
+   attribute-meaningful axes에서도 radial artifact를 재생산. Boundary
+   visualization 자체는 attribute structure를 직접 보여주지 않음.
+2. **Channel-level 정보는 풍부**: 각 채널이 어느 attribute에 loading
+   하는지가 정량적으로 분리 가능. 이게 본 연구가 도달한 가장 활용성
+   높은 표현.
+3. **Selective injection 가능성**: smile-pure 채널만 inject (gender-pure
+   는 그대로) 하면 더 disentangled editing이 가능할 수 있음 (Phase 16
+   후보).
+
+---
+
 ## 7. 핵심 결론
 
 1. **2D plane construction은 exact**. ReLU/SiLU 같은 활성함수 종류는 결과에

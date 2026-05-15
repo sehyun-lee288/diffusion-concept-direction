@@ -21,6 +21,8 @@ Phase-by-phase execution of [research_plan.md](research_plan.md) §5.
 - [x] Phase 11 — Multi-step h trajectory editing → **WORKS**
 - [x] Phase 12 — Orthogonalize smile against gender
 - [x] Phase 13 — Attribute-paired plane disentangled
+- [x] Phase 14 — Sign boundary on attribute plane (radial artifact persists)
+- [x] Phase 15 — Per-channel attribute-loading classification
 
 ## Confirmed Design Decisions
 
@@ -224,6 +226,39 @@ in every row, β axis controls gender in every column. All four corners
 realize the correct attribute combinations. Discussed in FINDINGS.md
 §6d.2 — this is the foundation for re-running boundary analysis with
 *meaningful* axes (queued as Phase 14).
+
+## Phase 14 — Sign boundary on attribute plane
+
+**Deliverable**: `scripts/15_attribute_boundary.py`. Computes per-channel
+sign(spatial_mean(h_anchor + α·Δh_smile_orth + β·Δh_gender)) on a
+50×50 grid at t=450 (nearest cached timestep to 500). Three panels:
+all-active region map, top-K=20 region map, top-K boundary lines.
+
+**Figure**: `figures/exp10_attribute_boundary.png`.
+
+**Result**: top-K boundaries still converge radially at (0, 0) —
+top-K-balanced selection's center-bias artifact persists even on
+attribute axes. Single-step sign pattern does not directly encode the
+trajectory-level attribute structure visible in exp9. Documented in
+FINDINGS §6e.1 as a methodological finding.
+
+## Phase 15 — Per-channel attribute-loading classification
+
+**Deliverable**: `scripts/16_channel_loading.py`. Per-channel
+A_c = ⟨Δh_smile_orth, e_c⟩ (spatial-mean) and B_c = ⟨Δh_gender, e_c⟩.
+Scatter + marginals + per-quadrant top channel listing.
+
+**Figure**: `figures/exp11_channel_loading.png`.
+
+**Result** (FINDINGS §6e.2):
+- corr(A_orig, B) = **+0.559** (smile-gender entanglement in raw axis)
+- corr(A_orth, B) = **+0.134** (orth axis is decorrelated)
+- 110 smile-pure / 173 gender-pure / 101 joint / 128 weak channels by
+  purity > 0.85 criterion
+- channel 80 is a multi-attribute encoder (top in both lists)
+- This per-channel categorization is the most actionable representation
+  of attribute structure in mid_block; sets up Phase 16
+  (selective-channel injection).
 
 ## Next phases
 
