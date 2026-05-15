@@ -31,6 +31,7 @@ Phase-by-phase execution of [research_plan.md](research_plan.md) §5.
 - [x] Phase 21 — Speciation-window editing (t≈700 window = all-step editing)
 - [x] Phase 22 — Unsupervised Jacobian directions (ε-Jacobian near-isotropic)
 - [x] Phase 23 — h-space Jacobian directions (works — σ1/σ5=1.66, entangled)
+- [x] Phase 24 — Many h-Jacobian directions (12 from one point, smooth spectrum)
 
 ## Confirmed Design Decisions
 

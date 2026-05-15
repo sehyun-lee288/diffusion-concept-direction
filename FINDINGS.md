@@ -601,6 +601,15 @@ concept이 안 나오지만, **h-space Jacobian (bottleneck feature 대상)** �
 2302.12469 방법). 단 그 방향들은 gender/identity/expression이 섞인
 **entangled** 상태 — 깨끗한 단일 axis는 여전히 supervision이 유리.
 
+**여러 방향 (Phase 24)**: 한 점에서 top-12 h-Jacobian singular vector를
+뽑으면 σ가 매끄럽게 감소 (41.8 → 19.8, sharp cutoff 없음) — local
+semantic subspace가 최소 12차원. 12개 방향 모두 distinct한 semantic
+변환을 생성하나 어느 것도 smile/gender와 깨끗이 정렬 안 됨 (max |cos|
+0.18). → **한 점에서 여러 방향 추출 가능하나, singular basis는 semantic
+subspace의 임의 정규직교 기저일 뿐 concept-aligned 기저가 아님.** 깨끗한
+단일 concept axis를 원하면 subspace 안에서 supervised projection 또는
+ICA-style rotation 필요.
+
 ---
 
 ## 7. 핵심 결론
