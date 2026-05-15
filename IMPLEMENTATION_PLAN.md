@@ -17,6 +17,7 @@ Phase-by-phase execution of [research_plan.md](research_plan.md) §5.
 - [x] Phase 7 — Single channel, varying spatial
 - [x] Phase 8 — Plane-grid sampled-image overlay
 - [x] Phase 9 — Per-channel angle statistics
+- [x] Phase 10 — Supervised Δh feasibility probe → **FAILED (pivot)**
 
 ## Confirmed Design Decisions
 
@@ -147,6 +148,26 @@ rose plots for top-4 and bottom-4 channels.
 
 Conclusion in FINDINGS.md §5 (now quantified): all channels have
 R ≤ 0.43, median R ≈ 0.14 — directional bias exists but is weak.
+
+## Phase 10 — Supervised Δh feasibility probe (FAILED — pivot)
+
+Gate experiment: does the mid_block at t=500 carry an *editable* smile
+direction? Probe with mean-shift Δh from 20 vs 20 attribute-labeled
+images and sweep injection magnitude s ∈ [−3, +3].
+
+**Deliverables**
+- `scripts/11_smile_probe.py` (uses `eurecom-ds/celeba-hq-256`)
+- `data/delta_h_smile.pt` — saved direction for reuse
+- Sanity: in-h-space class separation d′ = **4.23** (perfect)
+
+**Figure**: `figures/exp6_smile_probe.png` + `exp6_smile_probe_frames/`.
+
+**Result**: failure. Δh strongly separates classes in h-space but the
+decoded image changes by only 1.25 mean abs pixel diff at s=+3 vs
+s=0 — well below the 11.10 reconstruction noise floor. Encoder skip
+dominance confirmed at the supervised limit.
+
+Conclusion in FINDINGS.md §6b. Pivot plan: skip-aware injection.
 
 ## Next phases
 

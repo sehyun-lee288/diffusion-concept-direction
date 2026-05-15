@@ -182,6 +182,67 @@ Phase 7의 "channel 107/131 line이 비슷한 기울기" 관찰은 정량적으�
 
 ---
 
+## 6b. (Phase 10 confirmation) Supervised Δh probe — h-only injection 실패
+
+Phase 5의 "h-only injection은 약하다"를 supervised direction으로 stress-
+test. Result: **decisive failure**. h-space에 attribute 정보는 명확히
+있지만, decoder가 그것을 무시.
+
+### Setup (`scripts/11_smile_probe.py`)
+
+- `eurecom-ds/celeba-hq-256`에서 N=20 smile=1 image, N=20 smile=0 image
+- 각 이미지 → q-sample (t=500) → mid_block h 캡처
+- `Δh = mean(h | smile=1) − mean(h | smile=0)`, **||Δh|| = 78.6**
+- Test image: 첫 no-smile (frontal). `||h_test|| = 194.1`,
+  ratio `||Δh|| / ||h_test|| = 0.41` (큰 perturbation)
+- 7-point sweep: s ∈ {−3, −2, −1, 0, +1, +2, +3} → inject `h_test + s·Δh`
+
+### Δh는 h-space에서 smile을 정확히 분리
+
+각 h-vector을 Δh에 projection:
+
+| 분류 | mean | std | d′ (separation) |
+|---|---:|---:|---:|
+| smile=1 | +25.6 | 15.6 | |
+| smile=0 | −53.0 | 21.6 | **4.23** |
+
+d′ ≈ 4.2는 거의 perfect classifier 수준 (∼99% accuracy 예상).
+**h-space는 smile 정보를 클리어하게 인코딩**.
+
+### 그런데 decoded image는 거의 변하지 않음
+
+| Diff metric | value |
+|---|---:|
+| 노이즈 floor: `\|source − decoded(s=0)\|` mean abs | **11.10** |
+| s=+3 injection 효과: `\|decoded(s=+3) − decoded(s=0)\|` | 1.25 |
+| signal-to-noise ratio | ≈ 0.11 (signal **below** floor) |
+
+s=+3에서 projection은 −53 → +183 (smile class mean인 +25를 한참 초과)
+인데도 decoded image는 baseline에서 ~10%만 변함. 노이즈 floor 아래.
+
+Figure: `figures/exp6_smile_probe.png`, 개별 frame:
+`figures/exp6_smile_probe_frames/`.
+
+### 진단
+
+원인은 **encoder skip connection의 dominance**. U-Net의 skip은 x_500의
+모든 spatial 정보를 직접 decoder로 전달하므로, mid_block의 bottleneck
+하나만 바꿔도 출력은 거의 변하지 않음. h-space는 smile 정보를 *passive*
+하게 담고 있을 뿐 (linear probe로 잘 읽을 수 있음), 인과적 신호가 약함.
+
+### 결론 및 pivot
+
+- **(A) attribute-paired anchor 직진 plan은 dead.** Supervised direction
+  도 시각적 변화 없음 → unsupervised plane 분석은 더 약할 수밖에.
+- **다음 step = skip-aware injection** (FINDINGS §8 item 4):
+  encoder skip도 함께 manipulate해 mid_block과 일관된 정보 흐름을 만듦.
+  구체 방법: skip activations에서도 Δskip을 supervised로 학습해 동시
+  inject (mid_block injection + skip injection의 짝).
+- 또는 Asyrp 식의 **iterative editing** — t를 변화시키며 여러 step에
+  걸쳐 점진 inject.
+
+---
+
 ## 6. Decoding 결과 — h-only injection의 effect는 미묘
 
 `figures/exp1_boundary.png`의 9개 thumbnail은 anchor 0의 `x_500`을 fixed
