@@ -303,6 +303,74 @@ Latent diffusion이 가지는 컴팩트한 latent와는 성질이 다름.
 
 ---
 
+## 6d. Orthogonalization과 Attribute-paired plane (Phase 12 + 13)
+
+### 6d.1 Orthogonalization (Phase 12)
+
+Per-timestep Gram–Schmidt로 smile에서 gender 성분 제거:
+
+`Δh_smile^⊥_t = Δh_smile_t − ⟨Δh_smile_t, Δh_gender_t⟩ / ‖Δh_gender_t‖² · Δh_gender_t`
+
+Norm 측정:
+
+| t | ‖smile‖ | ‖smile⊥‖ | gender component |
+|---:|---:|---:|---:|
+|  50 |  84.1 |  75.5 | 37.1 |
+| 450 |  79.9 |  71.7 | 35.2 |
+| 750 |  54.5 |  49.9 | 22.0 |
+| 950 |  11.7 |  10.6 |  5.0 |
+
+→ gender 성분이 smile direction norm의 **44%**. 사소한 entanglement가
+아니라 substantial한 covariate confound. 작은 N=20에서 sample skew가
+주된 원인.
+
+`figures/exp8_orthogonalization.png` (2-row sweep, same x_T):
+
+- Row 1 (original smile): identity가 s 따라 크게 drift
+  (어린 여자 → 무표정 남자 → 미소 남자)
+- Row 2 (orth smile): identity 더 stable (-3 ~ +2까지 일관된 남자),
+  하지만 s=+3에서 다시 gender drift
+
+→ **부분적 success**. 1차원 gender axis만 빼는 걸로는 부족 — multiple
+confounder (age, skin, hair) 까지 빼면 더 좋을 듯.
+
+### 6d.2 Attribute-paired plane (Phase 13)
+
+`α·Δh_smile_orth + β·Δh_gender` 를 매 step inject, 5×5 grid 디코딩.
+`figures/exp9_attribute_plane.png` 관찰:
+
+```
+β = +2.5  [neutral male, mustache]  →  →  [smile male]
+β = +1.25 [neutral male]            →  →  [smile male]
+β = 0     [neutral young male]      →  →  [smile young]
+β = −1.25 [neutral female]          →  →  [smile female]
+β = −2.5  [neutral female blonde]   →  →  [smile female blonde]
+  α=−2.5    α=−1.25    α=0    α=+1.25   α=+2.5
+```
+
+- α 축 = smile (왼→오 무표정 → 미소) — 모든 row에서 일관
+- β 축 = gender (아래→위 여성 → 남성) — 모든 column에서 일관
+- **4 corner 모두 의도된 attribute 조합 정확히 생성**
+
+→ **plane 자체가 disentangled semantic space로 동작**. 1D orthogonalization
+sweep에서 부분적이었던 분리가, 2D plane에서는 axes가 동시에 표현 가능해
+훨씬 깨끗.
+
+### Phase 13의 함의
+
+원래 본 연구의 "boundary on plane" 패러다임이 attribute-paired axis로
+의미를 회복함:
+
+- 이전: 3개 random anchor가 span하는 plane → boundary는 artifact 위주
+- 지금: `(Δh_smile, Δh_gender)`가 span하는 plane → 각 attribute가 한 축에
+  매핑되어 sign-pattern boundary가 직접 attribute region을 인코딩할
+  여지가 있음
+
+다음 후보 (Phase 14): 이 attribute-paired plane 위에서 sign-pattern
+boundary 다시 그리고, region이 attribute combination에 대응하는지 검증.
+
+---
+
 ## 7. 핵심 결론
 
 1. **2D plane construction은 exact**. ReLU/SiLU 같은 활성함수 종류는 결과에

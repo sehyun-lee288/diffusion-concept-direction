@@ -19,6 +19,8 @@ Phase-by-phase execution of [research_plan.md](research_plan.md) §5.
 - [x] Phase 9 — Per-channel angle statistics
 - [x] Phase 10 — Supervised Δh feasibility probe → **FAILED (pivot)**
 - [x] Phase 11 — Multi-step h trajectory editing → **WORKS**
+- [x] Phase 12 — Orthogonalize smile against gender
+- [x] Phase 13 — Attribute-paired plane disentangled
 
 ## Confirmed Design Decisions
 
@@ -188,6 +190,40 @@ skip cannot remain pinned to a fixed input — the edit accumulates.
 Skip-dominance bottleneck is bypassed by trajectory-level accumulation.
 However, smile direction is entangled with age/gender (small N=20
 covariate skew). Discussed in FINDINGS.md §6c.
+
+## Phase 12 — Orthogonalize smile against gender
+
+**Refactor**
+- `diffusion_boundary/multistep.py` — pulled `extract_delta_h_multistep`,
+  `denoise_with_injection`, `orthogonalize_against`,
+  `collect_images_by_attribute` out of `scripts/12_*.py` for reuse.
+- `tests/test_multistep.py` — 4 tests for `orthogonalize_against`.
+
+**Deliverable**
+- `scripts/13_orthogonalization.py` — extracts Δh_smile and Δh_gender at
+  10 timesteps, applies per-t Gram–Schmidt, sweeps both directions on the
+  same fixed x_T.
+- `data/delta_h_multiattr.pt`, `data/delta_h_smile_orth.pt`
+
+**Figure**: `figures/exp8_orthogonalization.png` (2-row sweep).
+
+**Result**: gender component is **~44%** of the smile-direction norm at
+low t — substantial confound, not a sample artifact. Orth helps but
+doesn't fully decouple at s=+3.
+
+## Phase 13 — Attribute-paired plane
+
+**Deliverable**
+- `scripts/14_attribute_plane.py` — multi-step inject `α·Δh_smile_orth +
+  β·Δh_gender` per (α, β) grid point, 5×5 thumbnail grid on the plane.
+
+**Figure**: `figures/exp9_attribute_plane.png`.
+
+**Result**: clean disentangled 2D semantic plane. α axis controls smile
+in every row, β axis controls gender in every column. All four corners
+realize the correct attribute combinations. Discussed in FINDINGS.md
+§6d.2 — this is the foundation for re-running boundary analysis with
+*meaningful* axes (queued as Phase 14).
 
 ## Next phases
 
