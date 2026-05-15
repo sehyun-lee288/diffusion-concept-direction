@@ -94,6 +94,7 @@ T6. trajectory-aware boundary                            — sign patterns acros
 | 08 | 13 | exp9_attribute_plane.png |
 | 09 | 14, 15 | exp10_attribute_boundary.png, exp11_channel_loading.png |
 | 10 | 16 | exp12_selective_channel.png, exp12b_smile_pure_boost.png |
+| 11 | 17, 17b | **exp15_egbas_analog.png** (single-step), **exp16_egbas_multistep.png** (multi-step) |
 | 01 b | 4-5 (bonus) | **exp13_random_anchor_all_lines.png** (전체 472 line) |
 | 09 b | 13-15 (bonus) | **exp14_attribute_plane_class_lines.png** (category 색칠 + thumbnails) |
 

@@ -24,6 +24,7 @@ Phase-by-phase execution of [research_plan.md](research_plan.md) §5.
 - [x] Phase 14 — Sign boundary on attribute plane (radial artifact persists)
 - [x] Phase 15 — Per-channel attribute-loading classification
 - [x] Phase 16 — Selective-channel injection (clean editing |s| ≤ 4)
+- [x] Phase 17 — E-GBAS analog: ε-ball vs GB-RRT sampling
 
 ## Confirmed Design Decisions
 
