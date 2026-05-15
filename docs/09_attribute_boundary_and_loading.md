@@ -67,3 +67,20 @@ B가 actionable → doc 10:
 - smile-pure 110 채널에만 inject → gender drift 제거되는가?
 - multi-attribute 채널 (ch 80) 제외 시 효과?
 - → **doc 10**
+
+## Bonus figure (A + B 통합)
+
+`figures/exp14_attribute_plane_class_lines.png` — channel category별로 색칠한
+neuron boundary line + Phase 13의 5×5 decoded thumbnail을 한 panel에 overlay:
+
+- **smile-pure (red, 99 lines)**: 평균적으로 더 steep (|A/B| > 1.61, slope
+  ≥ 58°). Smile axis (α) determining에 기여
+- **gender-pure (blue, 163 lines)**: 평균적으로 더 shallow (|A/B| < 0.62).
+  Gender axis (β) determining에 기여
+- **joint (purple, 97 lines)**: 다양
+- **weak (gray, 50 lines)**: 분포 sparse, 의미 적음
+
+→ 채널 category가 그 channel boundary line의 plane 위 orientation과
+일치 (예측 qualitatively 확인). 즉 channel-level encoder structure가
+실제로 axis-aligned 분리에 가까움.
+

@@ -33,3 +33,10 @@ Asyrp이 semantic이라고 주장한 공간이므로 그 안의 boundary 구조�
 ## Next steps
 - 방사형이 모델 특성인지 selection artifact인지 확인 → **doc 02**
 - 진짜 neuron 단위 boundary는 어떻게 생겼는지 → **doc 03–04**
+
+## Bonus figure (보충)
+
+`figures/exp13_random_anchor_all_lines.png` — top-K이 아닌 **모든 472개
+active channel boundary line**을 한 panel에 plot. 시각적으로 방사형 흔적
+없음을 직접 확인 (doc 02 결론의 visual 형태).
+
