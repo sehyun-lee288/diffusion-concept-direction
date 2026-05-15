@@ -503,6 +503,30 @@ t에서도 유효한가).
 
 ---
 
+## 6g. E-GBAS polytope sampling은 diffusion에서 비효과적 (Phase 17)
+
+E-GBAS의 GB-RRT (sign-pattern polytope 안에서 sampling)를 diffusion
+h-space로 이식. 4가지 변형 모두 실패 (상세: `docs/11_egbas_analog.md`).
+
+| 변형 | 제약 | acceptance | decoded diversity |
+|---|---|---:|---|
+| single-t | 512 ch @ t=500 | 55% | ε-ball과 동일 |
+| selective | 110 smile-pure @ t=500 | 78% | ε-ball과 동일 |
+| trajectory | 512 ch @ 5 timestep | 4.7% | ε-ball과 동일 |
+
+GB-RRT는 모든 변형에서 polytope를 정확히 유지 (0 sign flip) 하지만,
+decoded image는 ε-ball (polytope 무시) 과 구별되지 않음.
+
+**왜**: GAN은 single feedforward pass라 activation pattern이 곧
+piecewise-linear region을 정의 → 같은 region = 비슷한 output. Diffusion은
+image가 50 step trajectory로 만들어지므로 한 timestep의 sign pattern은
+최종 image를 제어하지 못함.
+
+→ **방법론적 결론**: feedforward network의 activation-polytope paradigm
+(E-GBAS/RDR/SplineCam)은 iterative diffusion으로 직접 transfer되지 않음.
+
+---
+
 ## 7. 핵심 결론
 
 1. **2D plane construction은 exact**. ReLU/SiLU 같은 활성함수 종류는 결과에
