@@ -34,6 +34,7 @@ Phase-by-phase execution of [research_plan.md](research_plan.md) §5.
 - [x] Phase 24 — Many h-Jacobian directions (12 from one point, smooth spectrum)
 - [x] Phase 25 — Subspace+supervision hybrid (works — capture 0.33, raw-equiv editing)
 - [x] Phase 26 — ICA rotation (weak — marginal cos improvement)
+- [x] Phase 27 — Artifact diagnosis (cause: |s| magnitude; tail-σ more artifact-prone)
 
 ## Confirmed Design Decisions
 
