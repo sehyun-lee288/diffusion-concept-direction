@@ -29,6 +29,7 @@ Phase-by-phase execution of [research_plan.md](research_plan.md) §5.
 - [x] Phase 19 — Score-Jacobian eigenspectrum (concentration spike at t≈760)
 - [x] Phase 20 — Bifurcation test (no sharp boundary; smooth sigmoid)
 - [x] Phase 21 — Speciation-window editing (t≈700 window = all-step editing)
+- [x] Phase 22 — Unsupervised Jacobian directions (ε-Jacobian near-isotropic)
 
 ## Confirmed Design Decisions
 
