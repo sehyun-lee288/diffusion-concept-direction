@@ -606,9 +606,27 @@ concept이 안 나오지만, **h-space Jacobian (bottleneck feature 대상)** �
 semantic subspace가 최소 12차원. 12개 방향 모두 distinct한 semantic
 변환을 생성하나 어느 것도 smile/gender와 깨끗이 정렬 안 됨 (max |cos|
 0.18). → **한 점에서 여러 방향 추출 가능하나, singular basis는 semantic
-subspace의 임의 정규직교 기저일 뿐 concept-aligned 기저가 아님.** 깨끗한
-단일 concept axis를 원하면 subspace 안에서 supervised projection 또는
-ICA-style rotation 필요.
+subspace의 임의 정규직교 기저일 뿐 concept-aligned 기저가 아님.**
+
+**깨끗한 axis 추출 (Phase 25-26)**:
+
+| 방법 | 결과 |
+|---|---|
+| Subspace + supervision hybrid (Phase 25) | ✅ raw supervised와 동등한 editing |
+| ICA rotation (Phase 26) | ❌ best cos 0.18→0.20, 미미 |
+
+- Jacobian 12D subspace는 supervised smile 방향의 **33%** 포함 (random
+  subspace는 0.8% — 40배 차이). 단 capture ratio 0.33인데도 projection을
+  renormalize해 inject하면 **raw supervised와 동등한 smile editing** —
+  잡힌 33%가 의미적으로 effective한 성분이고 놓친 67%는 모델이 반응 안
+  하는 방향
+- ICA rotation은 통계적 독립성을 최적화 → "smile/gender 정렬"과 불일치
+  → disentangle 미미
+
+→ **결론**: unsupervised h-Jacobian으로 semantic subspace는 찾되, 그 안의
+깨끗한 단일 concept axis는 **minimal supervision (label-derived direction의
+projection)** 으로 뽑는 하이브리드가 정답. 순수 unsupervised rotation
+(ICA) 으로는 부족.
 
 ---
 
