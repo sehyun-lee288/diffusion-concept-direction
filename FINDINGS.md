@@ -551,6 +551,36 @@ Trajectory-aware boundary (T6) 의 첫 실증. 상세: `docs/12_*.md`.
 → **t ≈ 700이 smile attribute의 commit zone**: h-space separability 급변
 + score-Jacobian collapse. trajectory-aware boundary의 첫 증거.
 
+## 6i. Bifurcation은 없다, 그러나 editing leverage는 있다 (Phase 20-21)
+
+상세: `docs/13_*.md`.
+
+### Bifurcation test (Phase 20)
+t≈700에서 x_t를 smile 방향으로 perturbation → smile_score(s) 는 **smooth
+sigmoid ramp** (s=−6: −289 → s=+6: +236). Sharp step 없음. Random 방향
+control은 flat → 방향은 의미 있으나 전이는 연속.
+
+→ **t≈700에 sharp decision boundary (basin-flip) 없음**. Speciation은
+attribute가 encode되는 지점이지 knife-edge가 아님.
+
+### Speciation-window editing (Phase 21)
+Δh injection을 timestep window로 제한:
+
+| Window | steps | 효과 |
+|---|---:|---|
+| all | 50 | 강함 |
+| speciation [600,800] | 11 | all과 동등 |
+| early [350,550] | 10 | 약함 |
+
+→ **speciation window 11 step = all 50 step**. editing leverage는 step
+수가 아니라 위치(t≈700). 우리가 줄곧 쓴 t=500은 약한 zone이었음.
+
+### "Polytope 구할 수 있나" 최종 답
+- **Hard polytope: 없음** — Phase 20이 sharp boundary 부재 확인
+- **Soft speciation region: 있음** — t≈700 연속 전이 zone, 경계가
+  hyperplane이 아니라 smooth sigmoid. 닫힌 수식 없으나 editing leverage
+  위치는 특정 가능
+
 ---
 
 ## 7. 핵심 결론
