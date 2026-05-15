@@ -30,6 +30,7 @@ Phase-by-phase execution of [research_plan.md](research_plan.md) §5.
 - [x] Phase 20 — Bifurcation test (no sharp boundary; smooth sigmoid)
 - [x] Phase 21 — Speciation-window editing (t≈700 window = all-step editing)
 - [x] Phase 22 — Unsupervised Jacobian directions (ε-Jacobian near-isotropic)
+- [x] Phase 23 — h-space Jacobian directions (works — σ1/σ5=1.66, entangled)
 
 ## Confirmed Design Decisions
 

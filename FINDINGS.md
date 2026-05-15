@@ -583,6 +583,26 @@ attribute가 encode되는 지점이지 knife-edge가 아님.
 
 ---
 
+## 6j. 한 점에서 unsupervised concept direction — h-Jacobian으로 가능 (Phase 22-23)
+
+"한 점에서 sampling으로 concept direction을 찾을 수 있나?" 에 대한 답.
+상세: `docs/14_*.md`, `docs/15_*.md`.
+
+| 방법 | 결과 |
+|---|---|
+| Polytope 샘플링 (Phase 17) | ❌ |
+| ε-output Jacobian `∂ε/∂x` (Phase 22) | ❌ near-isotropic (σ1/σ5≈1.01), v1만 entangled 변화 |
+| **h-space Jacobian `∂h/∂x` (Phase 23)** | ✅ σ1/σ5=1.66, 5방향 모두 의미 있는 semantic 변화 |
+| Supervised Δh (Phase 11-16) | ✅✅ 단일 attribute 깨끗 |
+
+**핵심**: operator 선택이 결정적. ε-output Jacobian은 near-isotropic이라
+concept이 안 나오지만, **h-space Jacobian (bottleneck feature 대상)** 은
+구조가 있어 top singular vector가 의미 있는 방향을 줌 (Park et al.
+2302.12469 방법). 단 그 방향들은 gender/identity/expression이 섞인
+**entangled** 상태 — 깨끗한 단일 axis는 여전히 supervision이 유리.
+
+---
+
 ## 7. 핵심 결론
 
 1. **2D plane construction은 exact**. ReLU/SiLU 같은 활성함수 종류는 결과에

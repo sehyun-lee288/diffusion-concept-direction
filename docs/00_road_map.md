@@ -98,6 +98,7 @@ T6. trajectory-aware boundary                            — sign patterns acros
 | 12 | 18, 19 | **exp19_speciation_time.png**, **exp20_score_jacobian.png** |
 | 13 | 20, 21 | **exp21_bifurcation.png**, **exp22_speciation_editing.png** |
 | 14 | 22 | **exp23_jacobian_directions.png** |
+| 15 | 23 | **exp24_h_jacobian_directions.png** |
 | 01 b | 4-5 (bonus) | **exp13_random_anchor_all_lines.png** (전체 472 line) |
 | 09 b | 13-15 (bonus) | **exp14_attribute_plane_class_lines.png** (category 색칠 + thumbnails) |
 
