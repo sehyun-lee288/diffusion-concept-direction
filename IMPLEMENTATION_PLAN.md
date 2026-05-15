@@ -18,6 +18,7 @@ Phase-by-phase execution of [research_plan.md](research_plan.md) §5.
 - [x] Phase 8 — Plane-grid sampled-image overlay
 - [x] Phase 9 — Per-channel angle statistics
 - [x] Phase 10 — Supervised Δh feasibility probe → **FAILED (pivot)**
+- [x] Phase 11 — Multi-step h trajectory editing → **WORKS**
 
 ## Confirmed Design Decisions
 
@@ -167,7 +168,26 @@ decoded image changes by only 1.25 mean abs pixel diff at s=+3 vs
 s=0 — well below the 11.10 reconstruction noise floor. Encoder skip
 dominance confirmed at the supervised limit.
 
-Conclusion in FINDINGS.md §6b. Pivot plan: skip-aware injection.
+Conclusion in FINDINGS.md §6b. Pivot plan: multi-step trajectory edit.
+
+## Phase 11 — Multi-step h trajectory editing (Asyrp-style)
+
+Inject `+ s·Δh_{t_nearest}` into mid_block **at every DDIM step**, not
+just one. Bent x_t at step k becomes encoder input at step k+1, so the
+skip cannot remain pinned to a fixed input — the edit accumulates.
+
+**Deliverables**
+- `scripts/12_multistep_smile.py` — extracts Δh_t for
+  t ∈ {50, 150, …, 950}, 50-step DDIM denoise with per-step hook inject,
+  s ∈ [-3, +3] sweep
+- `data/delta_h_smile_multistep.pt` — dict {t: Δh_t}
+
+**Figure**: `figures/exp7_multistep_smile.png` + frame dump.
+
+**Result**: works. Decoded faces show clear smile transition across s.
+Skip-dominance bottleneck is bypassed by trajectory-level accumulation.
+However, smile direction is entangled with age/gender (small N=20
+covariate skew). Discussed in FINDINGS.md §6c.
 
 ## Next phases
 

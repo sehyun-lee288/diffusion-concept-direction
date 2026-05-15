@@ -232,14 +232,57 @@ Figure: `figures/exp6_smile_probe.png`, 개별 frame:
 
 ### 결론 및 pivot
 
-- **(A) attribute-paired anchor 직진 plan은 dead.** Supervised direction
+- **단일 step (t=500 only) injection은 dead.** Supervised direction
   도 시각적 변화 없음 → unsupervised plane 분석은 더 약할 수밖에.
-- **다음 step = skip-aware injection** (FINDINGS §8 item 4):
-  encoder skip도 함께 manipulate해 mid_block과 일관된 정보 흐름을 만듦.
-  구체 방법: skip activations에서도 Δskip을 supervised로 학습해 동시
-  inject (mid_block injection + skip injection의 짝).
-- 또는 Asyrp 식의 **iterative editing** — t를 변화시키며 여러 step에
-  걸쳐 점진 inject.
+- 두 가지 가능한 pivot: skip-aware single-step, 혹은 multi-step
+  trajectory editing (Asyrp 식). 후자를 먼저 시도 (§6c).
+
+---
+
+## 6c. Multi-step h trajectory editing — **SUCCESS**
+
+Phase 10 실패의 진단(encoder skip이 dominant)을 **모든 denoising step에서
+inject**해 우회. 매 step 약간씩 bend된 x_t가 다음 step의 encoder input이
+되므로 skip 자체가 누적적으로 modified — single-step에서 안 풀린 잠금이
+trajectory level에서 풀림.
+
+### Setup (`scripts/12_multistep_smile.py`)
+
+- 같은 20+20 dataset에서 t ∈ {50, 150, 250, …, 950} 각각의 Δh_t 계산
+  (10개 timestep)
+- ||Δh_t||: t=50에서 84 → t=950에서 12 (저 t에서 attribute signal 강함)
+- 50-step DDIM denoising, **매 step의 mid_block 출력에 `+ s·Δh_{t_nearest}`
+  를 hook으로 추가**
+- Fixed x_T (seed=0), s ∈ {-3, …, +3} sweep
+
+### 결과 (`figures/exp7_multistep_smile.png`)
+
+s 축을 따라 **명확한 smile transition** 관찰:
+
+| s | 관찰 |
+|---:|---|
+| −3 | 무표정, 어린 여자아이 |
+| −1 | 무표정, 어린 남자아이 |
+|  0 | 무표정, 성인 남성 (baseline) |
+| +1 | 약한 미소, 중년 남성 |
+| +3 | **명확한 미소**, 중년 남성 |
+
+→ **multi-step injection은 동작**. Skip dominance는 단일 step inject의 문제였지
+trajectory 자체의 한계가 아니었음.
+
+### 단, identity 동시 변화 (entanglement)
+
+s가 변할 때 smile뿐 아니라 **성별·나이·identity도 함께 변함**. 원인:
+
+- N=20 per class 의 sample size에서 covariate balance가 불완전
+- Our smile=1 sample은 우연히 더 남성·노년 비율이 높음
+- Δh_smile = mean(smile=1) − mean(smile=0) 는 모든 covariate 차이의 합
+
+해결책 (Phase 12 후보):
+1. **Orthogonalization**: Δh_smile에서 Δh_gender, Δh_age 성분을 빼내
+   pure smile axis 구성 (InterFaceGAN/StyleGAN concept axis 방식)
+2. **Larger N + balanced sampling**: 각 covariate를 controlled로 한 sample
+3. **Logistic probe + counterfactual regularization**
 
 ---
 
