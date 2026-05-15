@@ -25,6 +25,8 @@ Phase-by-phase execution of [research_plan.md](research_plan.md) §5.
 - [x] Phase 15 — Per-channel attribute-loading classification
 - [x] Phase 16 — Selective-channel injection (clean editing |s| ≤ 4)
 - [x] Phase 17 — E-GBAS analog: ε-ball vs GB-RRT (single-t, selective, trajectory)
+- [x] Phase 18 — Speciation time measurement (smile commits at t≈650-750)
+- [x] Phase 19 — Score-Jacobian eigenspectrum (concentration spike at t≈760)
 
 ## Confirmed Design Decisions
 

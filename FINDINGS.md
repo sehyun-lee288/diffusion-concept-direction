@@ -527,6 +527,32 @@ image가 50 step trajectory로 만들어지므로 한 timestep의 sign pattern�
 
 ---
 
+## 6h. Speciation time — smile attribute의 commit zone (Phase 18-19)
+
+Trajectory-aware boundary (T6) 의 첫 실증. 상세: `docs/12_*.md`.
+
+### Speciation (Phase 18, held-out d')
+
+| t | 50 | 450 | 550 | 650 | 750 | 850 | 950 |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| d'_h | 1.85 | 1.70 | 1.45 | 0.98 | 0.50 | 0.08 | 0.02 |
+
+- d'_h sigmoid 형태, **steepest rise t ∈ [650, 750]** — smile speciation zone
+- **t=500은 speciation point 아님** — 이미 commit 거의 완료. 진짜
+  decision-relevant timestep은 t ≈ 700
+- held-out d' = 1.7 — Phase 10의 d'=4.23은 fit/test circularity로
+  부풀려진 값이었음. 정직한 separation ≈ 1.7
+
+### Score-Jacobian concentration (Phase 19)
+
+`∂ε/∂x_t` top-4 singular value, σ1²-share: 대부분 t에서 0.25 (degenerate),
+**t=760에서만 spike 0.41**. Speciation zone과 일치.
+
+→ **t ≈ 700이 smile attribute의 commit zone**: h-space separability 급변
++ score-Jacobian collapse. trajectory-aware boundary의 첫 증거.
+
+---
+
 ## 7. 핵심 결론
 
 1. **2D plane construction은 exact**. ReLU/SiLU 같은 활성함수 종류는 결과에
