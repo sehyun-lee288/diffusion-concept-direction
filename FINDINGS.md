@@ -444,6 +444,63 @@ encoder의 예.
    는 그대로) 하면 더 disentangled editing이 가능할 수 있음 (Phase 16
    후보).
 
+## 6f. Selective-channel injection (Phase 16)
+
+Phase 15의 채널 분류를 사용해 inject scope를 좁힘. 가설: smile-pure
+110 channel에만 Δh inject하면 gender drift 없이 smile만 변할 것.
+
+### Setup (`scripts/17_selective_channel.py`)
+
+세 variant 비교, 동일 x_T (seed=0), s ∈ {−3, …, +3}:
+
+- **A** 모든 512 channel inject (Phase 11 reproduction)
+- **B** smile-pure 110 channel만 (다른 402 channel은 0)
+- **C** smile-pure 105 channel (B에서 |A·B| 상위 5개 leaky 제거: 122,
+  114, 372, 162, 118)
+
+### 결과 (`figures/exp12_selective_channel.png`)
+
+| s | A (all) | B (smile-pure 110) | C (smile-pure − leak 105) |
+|---:|---|---|---|
+| −3 | 어린 남자 | 동일 남성, 무표정 | 동일 남성, 무표정 |
+|  0 | 무표정 남성 | 무표정 남성 | 무표정 남성 |
+| +2 | 시작되는 gender drift | **동일 남성, 약한 미소** | **동일 남성, 약한 미소** |
+| +3 | 미소 짓는 **여성 (blonde)** | 약한 미소, 동일 남성 | 약한 미소, 동일 남성 |
+
+→ **Selective injection 동작 확인**. Row B/C는 gender 안정, smile 변화는
+약함. B와 C 차이는 시각적으로 미세 (leakiest 5개 제거가 미미한 영향).
+
+### Trade-off: signal magnitude vs disentanglement
+
+110 channel 사용은 512 사용보다 inject magnitude가 작아짐. Phase 16b
+(`scripts/18_smile_pure_boost.py`)로 s를 ±6까지 확장:
+
+`figures/exp12b_smile_pure_boost.png`:
+
+- s ∈ [−4, +4]: gender 안정, smile만 control
+- s = +6: **다시 여성으로 drift** — selective mask도 강한 inject에서는
+  새어버림
+
+해석:
+- **smile-pure channel set이 절대 isolation은 아님**. 큰 inject은
+  downstream 비선형성 (LayerNorm, residual coupling)을 통해 gender
+  특성을 활성화할 수 있음
+- **Clean editing range: |s| ≤ 4** 정도. 이 범위 내에선 깔끔한
+  disentanglement 성립
+- 실용적으로는 충분 (Phase 11에서 본 큰 변화는 |s| ≤ 3에서 일어남)
+
+### 함의
+
+Diffusion model bottleneck의 attribute structure는 **rank-1 channel 분리
+모델로 잘 근사**되지만 perfect는 아님. 채널 단위 selective injection은:
+1. 기능: gender-stable smile editing (|s| ≤ 4)
+2. 한계: 큰 inject 또는 다중-attribute joint editing에서는 추가 안전망
+   필요 (예: 동시에 gender 채널을 anti-inject로 활성화 보정)
+
+다음 후보 (Phase 17): soft-purity weighting, anti-injection, attribute
+direction이 시간축에 걸쳐 stable한지 검증 (t=450 categorization이 다른
+t에서도 유효한가).
+
 ---
 
 ## 7. 핵심 결론

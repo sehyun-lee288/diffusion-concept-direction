@@ -23,6 +23,7 @@ Phase-by-phase execution of [research_plan.md](research_plan.md) §5.
 - [x] Phase 13 — Attribute-paired plane disentangled
 - [x] Phase 14 — Sign boundary on attribute plane (radial artifact persists)
 - [x] Phase 15 — Per-channel attribute-loading classification
+- [x] Phase 16 — Selective-channel injection (clean editing |s| ≤ 4)
 
 ## Confirmed Design Decisions
 
@@ -259,6 +260,28 @@ Scatter + marginals + per-quadrant top channel listing.
 - This per-channel categorization is the most actionable representation
   of attribute structure in mid_block; sets up Phase 16
   (selective-channel injection).
+
+## Phase 16 — Selective-channel injection
+
+**Deliverables**
+- `scripts/17_selective_channel.py` — three-variant comparison:
+  all-512 / smile-pure 110 / smile-pure − top-5 leaky 105
+- `scripts/18_smile_pure_boost.py` — same smile-pure mask with
+  amplified s ∈ [-6, +6] to test how far disentanglement holds
+
+**Figures**: `figures/exp12_selective_channel.png` (3-row sweep),
+`figures/exp12b_smile_pure_boost.png` (boosted-s sweep).
+
+**Result**: clean smile editing without gender drift in the range
+|s| ≤ 4 when injection is restricted to the 110 smile-pure channels.
+At |s| ≥ 6 the gender drift returns even under selective masking —
+downstream non-linearities (LayerNorm, residual coupling) eventually
+re-couple the attributes. Discussed in FINDINGS §6f.
+
+The smile-pure category is therefore a useful but not perfect concept
+isolation — the model's bottleneck attribute structure is rank-1-ish
+but not strictly rank-1. Operationally adequate for editing within the
+visible range from Phase 11.
 
 ## Next phases
 
